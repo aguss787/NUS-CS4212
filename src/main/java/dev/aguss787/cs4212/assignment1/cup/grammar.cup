@@ -1,0 +1,272 @@
+// CUP specification for a simple expression evaluator (no actions)
+package dev.aguss787.cs4212.assignment1.cup;
+
+import java_cup.runtime.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
+import dev.aguss787.cs4212.assignment1.ast.Program;
+import dev.aguss787.cs4212.assignment1.ast.Function;
+import dev.aguss787.cs4212.assignment1.ast.CustomClass;
+import dev.aguss787.cs4212.assignment1.ast.Type;
+import dev.aguss787.cs4212.assignment1.ast.PrimitiveType;
+import dev.aguss787.cs4212.assignment1.ast.ClassType;
+import dev.aguss787.cs4212.assignment1.ast.Declaration;
+import dev.aguss787.cs4212.assignment1.ast.Statement;
+import dev.aguss787.cs4212.assignment1.ast.Assignment;
+import dev.aguss787.cs4212.assignment1.ast.IfElse;
+import dev.aguss787.cs4212.assignment1.ast.While;
+import dev.aguss787.cs4212.assignment1.ast.Println;
+import dev.aguss787.cs4212.assignment1.ast.Readln;
+import dev.aguss787.cs4212.assignment1.ast.Expression;
+import dev.aguss787.cs4212.assignment1.ast.BinaryOperation;
+import dev.aguss787.cs4212.assignment1.ast.UnaryOperation;
+import dev.aguss787.cs4212.assignment1.ast.Operator;
+import dev.aguss787.cs4212.assignment1.ast.Atom;
+import dev.aguss787.cs4212.assignment1.ast.ConstantAtom;
+import dev.aguss787.cs4212.assignment1.ast.ReferenceableAtom;
+import dev.aguss787.cs4212.assignment1.ast.Referenceable;
+import dev.aguss787.cs4212.assignment1.ast.StringLiteral;
+import dev.aguss787.cs4212.assignment1.ast.IntegerLiteral;
+import dev.aguss787.cs4212.assignment1.ast.BooleanLiteral;
+import dev.aguss787.cs4212.assignment1.ast.Dot;
+import dev.aguss787.cs4212.assignment1.ast.New;
+import dev.aguss787.cs4212.assignment1.ast.Call;
+import dev.aguss787.cs4212.assignment1.ast.AtomizedExpression;
+import dev.aguss787.cs4212.assignment1.ast.Return;
+
+//scan with {:
+//    Symbol x = super.scan();
+//    System.out.println(Symbols.terminalNames[x.sym] + " " + x.value + " " + x.left + " " + x.right);
+//    return x;
+//:};
+
+parser code {:
+    public void report_error(String message, Object info) {
+        StringBuffer m = new StringBuffer(message);
+        if (info instanceof Symbol) {
+            if (((Symbol)info).left != -1 && ((Symbol)info).right != -1) {
+                int line = (((Symbol)info).left);
+                int column = (((Symbol)info).right);
+                Object value = (((Symbol)info).value);
+                m.append(" (line "+line+", column "+column+")");
+                m.append(" (val = "+value+")");
+            }
+        }
+        throw new Error(m.toString());
+    }
+:}
+
+/* Terminals (tokens returned by the scanner). */
+terminal            TRUE, FALSE;
+terminal            THIS, NULL;
+terminal            NEW;
+terminal            AND,  OR, NEG;
+terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD;
+terminal            EQEQ, NEQ, LT, LTQ, GT, GTQ;
+terminal            UMINUS, LPAREN, RPAREN, COMMA, DOT;
+terminal            EQ;
+terminal Integer    NUMBER;
+terminal String     IDENTIFIER, CNAME;
+terminal String     STRING_LITERAL;
+terminal Integer    INTEGER_LITERAL;
+
+terminal            CLASS;
+terminal            LSQBR, RSQBR;
+
+terminal            RETURN, READLN, PRINTLN, IF, ELSE, WHILE;
+
+terminal String     TYPE_INT, TYPE_BOOL, TYPE_STRING, TYPE_VOID;
+
+/* Non terminals */
+non terminal Program                  program;
+
+non terminal ArrayList<CustomClass>   cls_list;
+non terminal CustomClass              main_cls, cls;
+
+non terminal ArrayList<Declaration>   decl_list;
+non terminal Declaration              decl;
+
+non terminal ArrayList<Function>      func_list;
+non terminal Function                 func;
+non terminal ArrayList<Declaration>   arg_list, arg_rest;
+non terminal Declaration              arg;
+non terminal Object                   func_body;
+
+non terminal ArrayList<Statement>     stmt_list, stmt_list_one;
+non terminal Statement                stmt, stmt_h, stmt_c;
+
+non terminal Statement                return, readln, println;
+non terminal Expression               expr, sexpr, aexpr, bexpr, rexpr, bgrd;
+non terminal Expression               term, ftr;
+non terminal Expression               conj;
+non terminal ArrayList<Expression>    expr_list, expr_rest;
+
+non terminal Atom                     atom;
+non terminal Referenceable            ref_atom;
+non terminal Call                     fcall;
+
+non terminal Type                     type;
+
+/* Precedences */
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE, MOD;
+
+/* The grammar */
+program  ::= main_cls:c cls_list:d {: ((ArrayList)d).add(0, c);
+                                      RESULT = new Program(d); :}
+           ;
+
+cls_list ::= cls_list:d cls:c {: RESULT = d;
+                                 ((ArrayList)RESULT).add(c); :}
+           |                  {: RESULT = new ArrayList<>(); :}
+           ;
+
+cls ::= CLASS CNAME:id LSQBR decl_list:dl func_list:fl RSQBR {: RESULT = new CustomClass(id, dl, fl); :}
+      | CLASS error:e  LSQBR decl_list:dl func_list:fl RSQBR {: System.out.println("==> invalid cls name"); RESULT = new CustomClass(new Error("Broken CNAME in line " + eleft + " column " + eright)); :}
+      ;
+
+main_cls ::= CLASS CNAME:id LSQBR func_list:fl RSQBR {: RESULT = (new CustomClass(id, null, fl)).asMain(); :};
+
+decl_list ::= decl_list:d decl:c {: RESULT = d;
+                                   ((ArrayList)RESULT).add(c); :}
+            |                    {: RESULT = RESULT = new ArrayList<>(); :}
+            ;
+
+decl ::= type:t IDENTIFIER:id SEMI {: RESULT = new Declaration(t, id); :}
+       | type:t IDENTIFIER:id error:e {: RESULT = new Declaration(t, id); System.out.println("==> Missing semicolon (1)"); :}
+       ;
+
+func_list ::= func: f func_list:d  {: RESULT = d;
+                                      RESULT.add(0, f); :}
+            |                      {: RESULT = RESULT = new ArrayList<>(); :}
+            ;
+
+func ::= type:t IDENTIFIER:id LPAREN arg_list:args RPAREN LSQBR func_body:b RSQBR {: RESULT = new Function(t, id, args, (ArrayList)(((Object[])b)[0]), (ArrayList)(((Object[])b)[1])); :}
+       ;
+
+func_body ::= decl_list:d  stmt_list_one:s {: Object[] res = new Object[2];
+                                              res[0] = d;
+                                              res[1] = s;
+                                              RESULT = res; :}
+            ;
+
+arg_list ::= arg:a arg_rest:d {: RESULT = d;
+                                 RESULT.add(0, a); :}
+           |                  {: RESULT = new ArrayList<>(); :}
+           ;
+
+arg_rest ::= arg_rest:d COMMA arg:a {: RESULT = d;
+                                       RESULT.add(a); :}
+           |                        {: RESULT = new ArrayList<>(); :}
+           ;
+
+arg ::= type:t IDENTIFIER:id {: RESULT = new Declaration(t, id); :}
+      ;
+
+stmt_list ::= stmt_list:d stmt:s {: RESULT = d;
+                                    RESULT.add(s); :}
+            |                    {: RESULT = RESULT = new ArrayList<>(); :}
+            ;
+
+stmt_list_one ::= stmt_list:d stmt:s {: RESULT = d;
+                                        RESULT.add(s); :}
+                ;
+
+stmt ::= stmt_h:r SEMI  {: RESULT = r; :}
+       | stmt_h:r error:e {: RESULT = r; System.out.println("==> Missing semicolon (2)"); :}
+       | stmt_c:r       {: RESULT = r; :}
+       ;
+
+stmt_h ::= return:r                  {: RESULT = r; :}
+       | fcall:r              {: RESULT = r; :}
+       | ref_atom:a EQ expr:e  {: RESULT = new Assignment(a, e); :}
+       | READLN LPAREN IDENTIFIER:id RPAREN {: RESULT = new Readln(id); :}
+       | PRINTLN LPAREN expr:e RPAREN {: RESULT = new Println(e); :}
+       ;
+
+stmt_c ::= IF LPAREN expr:e RPAREN LSQBR stmt_list_one:a RSQBR ELSE LSQBR stmt_list_one:b RSQBR {: RESULT = new IfElse(e, a, b); :}
+       | WHILE LPAREN expr:e RPAREN LSQBR stmt_list:a RSQBR {: RESULT = new While(e, a); :}
+       ;
+
+return  ::= RETURN {: RESULT = new Return(); :}
+          | RETURN expr:e {: RESULT = new Return(e); :}
+          ;
+
+expr ::= sexpr:e {: RESULT = e; :}
+       | bexpr:e {: RESULT = e; :}
+       ;
+
+bexpr ::= bexpr:l OR conj:r {: RESULT = new BinaryOperation(l, r, Operator.OR); :}
+        | conj:r            {: RESULT = r; :}
+        ;
+
+conj ::= conj:l AND rexpr:r {: RESULT = new BinaryOperation(l, r, Operator.AND); :}
+       | rexpr:r            {: RESULT = r; :}
+       ;
+
+rexpr ::= aexpr:l EQEQ aexpr:r  {: RESULT = new BinaryOperation(l, r, Operator.EQ); :}
+        | aexpr:l NEQ aexpr:r   {: RESULT = new BinaryOperation(l, r, Operator.NEQ); :}
+        | aexpr:l LT aexpr:r    {: RESULT = new BinaryOperation(l, r, Operator.LT); :}
+        | aexpr:l LTQ aexpr:r   {: RESULT = new BinaryOperation(l, r, Operator.LTQ); :}
+        | aexpr:l GT aexpr:r    {: RESULT = new BinaryOperation(l, r, Operator.GT); :}
+        | aexpr:l GTQ aexpr:r   {: RESULT = new BinaryOperation(l, r, Operator.GTQ); :}
+        | bgrd:e                {: RESULT = e; :}
+        ;
+
+bgrd ::= NEG bgrd:e            {: RESULT = new UnaryOperation(e, Operator.NEG); :}
+       | TRUE                  {: RESULT = new BooleanLiteral(true); :}
+       | FALSE                 {: RESULT = new BooleanLiteral(false); :}
+       | aexpr:e               {: RESULT = e; :}
+       ;
+
+aexpr ::= aexpr:l PLUS  term:r  {: RESULT = new BinaryOperation(l, r, Operator.PLUS); :}
+        | aexpr:l MINUS term:r  {: RESULT = new BinaryOperation(l, r, Operator.MINUS); :}
+        | term:r                {: RESULT = r; :}
+        ;
+
+term ::= term:l TIMES  ftr:r {: RESULT = new BinaryOperation(l, r, Operator.MUL); :}
+       | term:l DIVIDE ftr:r {: RESULT = new BinaryOperation(l, r, Operator.DIV); :}
+       | ftr:r               {: RESULT = r; :}
+        ;
+
+ftr  ::= INTEGER_LITERAL:r {: RESULT = new IntegerLiteral(r); :}
+       | MINUS ftr:r       {: RESULT = new UnaryOperation(r, Operator.MINUS); :}
+       | atom:r            {: RESULT = r; :}
+       ;
+
+expr_list ::= expr:a expr_rest:d {: RESULT = d;
+                                    RESULT.add(0, a); :}
+            |                    {: RESULT = new ArrayList<>(); :}
+            ;
+
+expr_rest ::= expr_rest:d COMMA expr:a {: RESULT = d;
+                                          RESULT.add(a); :}
+            |                          {: RESULT = new ArrayList<>(); :}
+            ;
+
+sexpr ::= STRING_LITERAL:s {: RESULT = new StringLiteral(s); :}
+        ;
+
+atom ::= THIS                             {: RESULT = new ConstantAtom().asThis(); :}
+       | NULL                             {: RESULT = new ConstantAtom().asNull(); :}
+       | ref_atom:s                       {: RESULT = s; :}
+       | LPAREN expr:e RPAREN             {: RESULT = new AtomizedExpression(e); :}
+       | NEW CNAME:id LPAREN RPAREN       {: RESULT = new New(id); :}
+       | fcall:s                          {: RESULT = s; :}
+       ;
+
+fcall ::= atom:a LPAREN expr_list:e RPAREN {: RESULT = new Call(a, e); :}
+        ;
+
+ref_atom ::= IDENTIFIER:id                    {: RESULT = new ReferenceableAtom(id); :}
+           | atom:a DOT IDENTIFIER:id         {: RESULT = new Dot(a, id); :}
+           ;
+
+type ::= TYPE_INT      {: RESULT = PrimitiveType.INT; :}
+       | TYPE_BOOL     {: RESULT = PrimitiveType.BOOL; :}
+       | TYPE_STRING   {: RESULT = PrimitiveType.STRING; :}
+       | TYPE_VOID     {: RESULT = PrimitiveType.VOID; :}
+       | CNAME:t       {: RESULT = new ClassType(t); :}
+       ;

@@ -1,0 +1,417 @@
+@startuml
+
+title __AST's Class Diagram__\n
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.BinaryOperation {
+          + ArithmeticOperation()
+          + getLeft()
+          + getOperator()
+          + getRight()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      enum ArithmeticOperator {
+        AND
+        DIV
+        EQ
+        GT
+        GTQ
+        LT
+        LTQ
+        MINUS
+        MUL
+        NEG
+        NEQ
+        OR
+        PLUS
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.Assignment {
+          + Assignment()
+          + getExpr()
+          + getTarget()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      interface dev.aguss787.cs4212.assignment1.ast.Atom {
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.AtomizedExpression {
+          + AtomizedExpression()
+          + getExpr()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.BooleanLiteral {
+          - value : Boolean
+          + BooleanLiteral()
+          + getValue()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.Call {
+          - args : ArrayList<Expression>
+          + Call()
+          + getArgs()
+          + getFun()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.ClassType {
+          - name : String
+          + ClassType()
+          + getName()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.ConstantAtom {
+          - isNull : Boolean
+          - isThis : Boolean
+          + ConstantAtom()
+          + asNull()
+          + asThis()
+          + isThis()
+          + isiNull()
+          + toString()
+          ~ ConstantAtom()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.CustomClass {
+          - declarations : ArrayList<Declaration>
+          - error : Error
+          - functions : ArrayList<Function>
+          - name : String
+          + CustomClass()
+          + CustomClass()
+          + asMain()
+          + getDeclarations()
+          + getError()
+          + getFunctions()
+          + getName()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.Declaration {
+          - name : String
+          + Declaration()
+          + getName()
+          + getType()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.Dot {
+          - right : String
+          + Dot()
+          + getLeft()
+          + getRight()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      interface dev.aguss787.cs4212.assignment1.ast.Expression {
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.Function {
+          - arguments : ArrayList<Declaration>
+          - declarations : ArrayList<Declaration>
+          - name : String
+          - statements : ArrayList<Statement>
+          + Function()
+          + getArguments()
+          + getDeclarations()
+          + getName()
+          + getReturns()
+          + getStatements()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.IfElse {
+          - ifFalse : ArrayList<Statement>
+          - ifTrue : ArrayList<Statement>
+          + IfElse()
+          + getCond()
+          + getIfFalse()
+          + getIfTrue()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.IntegerLiteral {
+          - value : Integer
+          + IntegerLiteral()
+          + getValue()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.New {
+          - name : String
+          + New()
+          + getName()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      enum PrimitiveType {
+        BOOL
+        INT
+        STRING
+        VOID
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.Println {
+          + Println()
+          + getExpr()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.Program {
+          - classes : ArrayList<CustomClass>
+          + Program()
+          + getClasses()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.Readln {
+          - id : String
+          + Readln()
+          + getId()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      interface dev.aguss787.cs4212.assignment1.ast.Referenceable {
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.ReferenceableAtom {
+          - name : String
+          + ReferenceableAtom()
+          + getName()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.Return {
+          - expr : Optional<Expression>
+          + Return()
+          + Return()
+          + getExpr()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      interface dev.aguss787.cs4212.assignment1.ast.Statement {
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.StringLiteral {
+          - value : String
+          + StringLiteral()
+          + getValue()
+          + toString()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      interface dev.aguss787.cs4212.assignment1.ast.Type {
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.UnaryOperation {
+          + UnaryOperation()
+          + getOperand()
+          + getOperator()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  namespace dev.aguss787.cs4212.assignment1 {
+    namespace ast {
+      class dev.aguss787.cs4212.assignment1.ast.While {
+          - statements : ArrayList<Statement>
+          + While()
+          + getCond()
+          + getStatements()
+          + prettyPrint()
+      }
+    }
+  }
+  
+
+  dev.aguss787.cs4212.assignment1.ast.BinaryOperation .up.|> dev.aguss787.cs4212.assignment1.ast.Expression
+  dev.aguss787.cs4212.assignment1.ast.BinaryOperation o-- dev.aguss787.cs4212.assignment1.ast.Expression : left
+  dev.aguss787.cs4212.assignment1.ast.BinaryOperation o-- dev.aguss787.cs4212.assignment1.ast.Operator : operator
+  dev.aguss787.cs4212.assignment1.ast.BinaryOperation o-- dev.aguss787.cs4212.assignment1.ast.Expression : right
+  dev.aguss787.cs4212.assignment1.ast.Assignment .up.|> dev.aguss787.cs4212.assignment1.ast.Statement
+  dev.aguss787.cs4212.assignment1.ast.Assignment o-- dev.aguss787.cs4212.assignment1.ast.Expression : expr
+  dev.aguss787.cs4212.assignment1.ast.Assignment o-- dev.aguss787.cs4212.assignment1.ast.Referenceable : target
+  dev.aguss787.cs4212.assignment1.ast.AtomizedExpression .up.|> dev.aguss787.cs4212.assignment1.ast.Atom
+  dev.aguss787.cs4212.assignment1.ast.AtomizedExpression o-- dev.aguss787.cs4212.assignment1.ast.Expression : expr
+  dev.aguss787.cs4212.assignment1.ast.BooleanLiteral .up.|> dev.aguss787.cs4212.assignment1.ast.Expression
+  dev.aguss787.cs4212.assignment1.ast.Call .up.|> dev.aguss787.cs4212.assignment1.ast.Atom
+  dev.aguss787.cs4212.assignment1.ast.Call .up.|> dev.aguss787.cs4212.assignment1.ast.Statement
+  dev.aguss787.cs4212.assignment1.ast.Call o-- dev.aguss787.cs4212.assignment1.ast.Atom : fun
+  dev.aguss787.cs4212.assignment1.ast.ClassType .up.|> dev.aguss787.cs4212.assignment1.ast.Type
+  dev.aguss787.cs4212.assignment1.ast.ConstantAtom .up.|> dev.aguss787.cs4212.assignment1.ast.Atom
+  dev.aguss787.cs4212.assignment1.ast.CustomClass .up.|> dev.aguss787.cs4212.assignment1.utils.PrettyPrintable
+  dev.aguss787.cs4212.assignment1.ast.Declaration .up.|> dev.aguss787.cs4212.assignment1.utils.PrettyPrintable
+  dev.aguss787.cs4212.assignment1.ast.Declaration o-- dev.aguss787.cs4212.assignment1.ast.Type : type
+  dev.aguss787.cs4212.assignment1.ast.Dot .up.|> dev.aguss787.cs4212.assignment1.ast.Referenceable
+  dev.aguss787.cs4212.assignment1.ast.Dot o-- dev.aguss787.cs4212.assignment1.ast.Atom : left
+  dev.aguss787.cs4212.assignment1.ast.Function .up.|> dev.aguss787.cs4212.assignment1.utils.PrettyPrintable
+  dev.aguss787.cs4212.assignment1.ast.Function o-- dev.aguss787.cs4212.assignment1.ast.Type : returns
+  dev.aguss787.cs4212.assignment1.ast.IfElse .up.|> dev.aguss787.cs4212.assignment1.ast.Statement
+  dev.aguss787.cs4212.assignment1.ast.IfElse o-- dev.aguss787.cs4212.assignment1.ast.Expression : cond
+  dev.aguss787.cs4212.assignment1.ast.IntegerLiteral .up.|> dev.aguss787.cs4212.assignment1.ast.Expression
+  dev.aguss787.cs4212.assignment1.ast.New .up.|> dev.aguss787.cs4212.assignment1.ast.Atom
+  dev.aguss787.cs4212.assignment1.ast.PrimitiveType .up.|> dev.aguss787.cs4212.assignment1.ast.Type
+  dev.aguss787.cs4212.assignment1.ast.Println .up.|> dev.aguss787.cs4212.assignment1.ast.Statement
+  dev.aguss787.cs4212.assignment1.ast.Println o-- dev.aguss787.cs4212.assignment1.ast.Expression : expr
+  dev.aguss787.cs4212.assignment1.ast.Program .up.|> dev.aguss787.cs4212.assignment1.utils.PrettyPrintable
+  dev.aguss787.cs4212.assignment1.ast.Readln .up.|> dev.aguss787.cs4212.assignment1.ast.Statement
+  dev.aguss787.cs4212.assignment1.ast.ReferenceableAtom .up.|> dev.aguss787.cs4212.assignment1.ast.Referenceable
+  dev.aguss787.cs4212.assignment1.ast.Return .up.|> dev.aguss787.cs4212.assignment1.ast.Statement
+  dev.aguss787.cs4212.assignment1.ast.StringLiteral .up.|> dev.aguss787.cs4212.assignment1.ast.Expression
+  dev.aguss787.cs4212.assignment1.ast.UnaryOperation .up.|> dev.aguss787.cs4212.assignment1.ast.Expression
+  dev.aguss787.cs4212.assignment1.ast.UnaryOperation o-- dev.aguss787.cs4212.assignment1.ast.Expression : operand
+  dev.aguss787.cs4212.assignment1.ast.UnaryOperation o-- dev.aguss787.cs4212.assignment1.ast.Operator : operator
+  dev.aguss787.cs4212.assignment1.ast.While .up.|> dev.aguss787.cs4212.assignment1.ast.Statement
+  dev.aguss787.cs4212.assignment1.ast.While o-- dev.aguss787.cs4212.assignment1.ast.Expression : cond
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml
